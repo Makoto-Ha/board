@@ -65,6 +65,7 @@ class Board extends Detection {
     // 選取目標顏色為當前畫筆顏色，然後重置flag、innerText、lineWidth
     this.lineColor.forEach(el => el.style.border = '1px solid transparent');
     event.target.style.border = '1px solid #000';
+    this.canvas.style.cursor = 'url("./yellowpen.ico"), auto';
     this.c.lineWidth = this.setlineWidth;
     this.eraser.el.innerText = '橡皮';
     this.eraser.flag = true;

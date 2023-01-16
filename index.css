@@ -7,6 +7,7 @@
 html {
   font-size: 20px;
   height: 100%;
+  cursor: url('./cartoon.ico'), auto;
 }
 
 body {
@@ -20,6 +21,7 @@ body {
 }
 
 canvas {
+  cursor: url('./greenpen.ico'), auto;
   display: block;
   margin: 10px auto;
   border: 1px solid #ccc;
@@ -50,6 +52,7 @@ canvas {
   width: 70px;
   height: 70px;
   border: 1px solid transparent;
+  cursor: url('./redpen.ico'), auto;
 }
 
 .container>.lineColor:nth-child(4) {
