@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>demo</title>
+  <link rel="stylesheet" href="./index.css">
+</head>
+
+<body>
+  <canvas style="width: 80%; height: 70%"></canvas>
+  <div class="container">
+    <div class="cut"></div>
+    <div class="eraser"></div>
+    <div id="clear"></div>
+    <div class="lineColor"></div>
+    <div class="lineColor"></div>
+    <div class="lineColor"></div>
+    <div class="lineColor"></div>
+    <select name="thickness" id="thickness">
+      <option value="1">1</option>
+      <option value="2">2</option>
+      <option value="3">3</option>
+      <option value="4">4</option>
+      <option value="5">5</option>
+    </select>
+  </div>
+</body>
+<script src="./index.js"></script>
+<script>
+  new Board().setBgColor('#2C3E50');
+</script>
+
+</html>
