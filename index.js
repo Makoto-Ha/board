@@ -63,9 +63,12 @@ class Board extends Detection {
   // 畫筆顏色
   setLineColor(event) {
     // 選取目標顏色為當前畫筆顏色，然後重置flag、innerText、lineWidth
-    this.lineColor.forEach(el => el.style.border = '1px solid transparent');
+    this.lineColor.forEach(el => {
+      el.style.border = '1px solid transparent';
+      el.style.cursor = `url('${event.target.getAttribute('cursorICO')}'), auto`;
+    });
     event.target.style.border = '1px solid #000';
-    this.canvas.style.cursor = 'url("./yellowpen.ico"), auto';
+    this.canvas.style.cursor =  `url('${event.target.getAttribute('cursorICO')}'), auto`;
     this.c.lineWidth = this.setlineWidth;
     this.eraser.el.innerText = '橡皮';
     this.eraser.flag = true;
@@ -76,6 +79,7 @@ class Board extends Detection {
 
   // 擦拭
   wipe() {
+    this.canvas.style.cursor = 'pointer';
     this.eraser.flag = !this.eraser.flag;
     this.eraser.el.innerText = this.eraser.flag ? '橡皮' : '寫字';
     this.c.strokeStyle = this.eraser.flag ? '#fff' : this.c.fillStyle;
@@ -94,12 +98,13 @@ class Board extends Detection {
     this.setlineWidth = parseInt(event.target.value);
     this.c.lineWidth = parseInt(event.target.value);
   }
-  
+
   // 初始化
   init() {
     // 行內樣式設置的寬高給予canvas的畫布尺寸
     this.canvas.width = this.canvas.clientWidth;
     this.canvas.height = this.canvas.clientHeight;
+    this.setlineWidth = 1;
     this.c.beginPath();
     this.c.fillRect(0, 0, this.canvas.width, this.canvas.height);
     this.c.strokeStyle = '#fff';
@@ -107,8 +112,14 @@ class Board extends Detection {
     this.eraser.el.innerText = '橡皮';
     this.cutEL.innerText = '截圖';
     this.lineColor.forEach((el, i) => {
-      let color = ['#8E44AD', '#F1C40F', '#16A085', '#E74C3C'];
-      el.style.background = color[i];
+      let values = [
+        { color: '#8E44AD', cursor: './img/purplepen.ico' },
+        { color: '#F1C40F', cursor: './img/yellowpen.ico' },
+        { color: '#16A085', cursor: './img/greenpen.ico' },
+        { color: '#E74C3C', cursor: './img/redpen.ico' }
+      ];
+      el.style.background = values[i].color;
+      el.setAttribute('cursorICO', values[i].cursor);
       el.addEventListener('click', this.setLineColor.bind(this));
     });
   }

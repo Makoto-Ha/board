@@ -21,7 +21,7 @@ body {
 }
 
 canvas {
-  cursor: url('./greenpen.ico'), auto;
+  cursor: url('./img/whitepen.ico'), auto;
   display: block;
   margin: 10px auto;
   border: 1px solid #ccc;
@@ -52,7 +52,7 @@ canvas {
   width: 70px;
   height: 70px;
   border: 1px solid transparent;
-  cursor: url('./redpen.ico'), auto;
+  cursor: url('./img/whitepen.ico'), auto;
 }
 
 .container>.lineColor:nth-child(4) {
