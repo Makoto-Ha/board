@@ -79,9 +79,9 @@ class Board extends Detection {
 
   // 擦拭
   wipe() {
-    this.canvas.style.cursor = 'pointer';
     this.eraser.flag = !this.eraser.flag;
     this.eraser.el.innerText = this.eraser.flag ? '橡皮' : '寫字';
+    this.canvas.style.cursor = this.eraser.flag ? 'url("./img/whitepen.ico"), auto' : 'pointer';
     this.c.strokeStyle = this.eraser.flag ? '#fff' : this.c.fillStyle;
     this.c.lineWidth = this.eraser.flag ? 1 : 5;
   }
