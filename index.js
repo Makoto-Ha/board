@@ -1,15 +1,64 @@
 class Detection {
   domAction(dom, callback = () => { }) {
-    let isExit = Boolean(document.querySelector(dom));
-    if (isExit) callback();
-    return isExit
+    return Boolean(document.querySelector(dom)) || callback();
   }
 }
 
-class Board extends Detection {
-  // c畫布 、 cutEL截圖 、 eraser橡皮 、 clearEL清除 、 lineColor色筆 、 thicknessEL色筆粗細
+class Canvas extends Detection {
   canvas = document.querySelector('canvas');
   c = this.canvas.getContext('2d');
+  offset = this.offsetXY(); 
+  constructor() {
+    super();
+    // 行內樣式設置的寬高給予canvas的畫布尺寸
+    this.canvas.width = this.canvas.clientWidth;
+    this.canvas.height = this.canvas.clientHeight;
+  }
+
+  offsetXY() {
+    let offset = {
+      X: [],
+      Y: [],
+      logX: [],
+      logY: []
+    }
+    return (x, y) => {
+      if (typeof x === 'undefined') return offset;
+      offset.X.push(x);
+      offset.Y.push(y);
+      return offset;
+    }
+  }
+
+  reset({ X, Y }) { 
+    // 還沒開始畫就直接返回
+    if (X.length === 0) return '還沒開始畫線';
+    // 清除六次
+    let tempColor = this.c.strokeStyle;
+    let resetX = X[X.length-1];
+    let resetY = Y[Y.length-1];
+
+    this.c.strokeStyle = this.c.fillStyle;
+    this.c.lineWidth += 2; 
+    console.log(resetX);
+    
+    for (let i = 1; i <= resetX.length; i++) {
+  
+      this.c.lineTo(resetX[resetX.length - i], resetY[resetY.length - i]);
+      this.c.stroke();
+    }
+    // 抬起筆後，原本畫的顏色才不會被修改
+    this.c.beginPath();
+    this.c.lineWidth -= 2;
+    // 還原原本筆的顏色
+    this.c.strokeStyle = tempColor;  
+    X.pop();
+    Y.pop();
+  }
+}
+
+class Board extends Canvas {
+  // c畫布 、 cutEL截圖 、 eraser橡皮 、 clearEL清除 、 lineColor色筆 、 thicknessEL色筆粗細
   cutEL = document.querySelector('.cut');
   eraser = { el: document.querySelector('.eraser'), flag: true };
   clearEL = document.querySelector('#clear');
@@ -20,6 +69,7 @@ class Board extends Detection {
     this.init();
     this.bindEvent();
   }
+
   // 綁定事件
   bindEvent() {
     Board.prototype.drawLine = this.drawLine.bind(this);
@@ -29,15 +79,21 @@ class Board extends Detection {
     this.eraser.el.addEventListener('click', this.wipe.bind(this));
     this.cutEL.addEventListener('click', this.cut.bind(this));
     this.thicknessEL.addEventListener('change', this.thickness.bind(this));
+    document.addEventListener('keydown', this.reset.bind(this, 'r')());
   }
 
   // 按下滑鼠後綁定mousemove滑鼠移動事件
   bindDrawLine() {
+    this.offset().logX = [];
+    this.offset().logY = [];
     this.canvas.addEventListener('mousemove', this.drawLine);
   }
 
   // 畫線
-  drawLine(event) {
+  drawLine(event) { 
+    this.offset().logX.push(event.offsetX);
+    this.offset().logY.push(event.offsetY);
+
     this.c.lineTo(event.offsetX, event.offsetY);
     this.c.stroke();
   }
@@ -45,6 +101,9 @@ class Board extends Detection {
   // 停止畫線
   drawStop() {
     this.c.beginPath();
+    let offset = this.offset();
+    offset.X.push(offset.logX);
+    offset.Y.push(offset.logY);
     this.canvas.removeEventListener('mousemove', this.drawLine);
   }
 
@@ -54,10 +113,22 @@ class Board extends Detection {
     this.c.fillRect(0, 0, this.canvas.width, this.canvas.height);
   }
 
+  reset(keyWord) {
+    let log = '', target = keyWord;
+    return ({ key }) => {
+      log += key;
+      if (log.includes(target)) {
+        log = ''
+        super.reset(this.offset());
+      }
+    }
+  }
+
   // 設置黑板顏色
   setBgColor(color) {
     this.c.fillStyle = color;
     this.c.fillRect(0, 0, this.canvas.width, this.canvas.height);
+    return this;
   }
 
   // 畫筆顏色
@@ -68,7 +139,7 @@ class Board extends Detection {
       el.style.cursor = `url('${event.target.getAttribute('cursorICO')}'), auto`;
     });
     event.target.style.border = '1px solid #000';
-    this.canvas.style.cursor =  `url('${event.target.getAttribute('cursorICO')}'), auto`;
+    this.canvas.style.cursor = `url('${event.target.getAttribute('cursorICO')}'), auto`;
     this.c.lineWidth = this.setlineWidth;
     this.eraser.el.innerText = '橡皮';
     this.eraser.flag = true;
@@ -101,9 +172,6 @@ class Board extends Detection {
 
   // 初始化
   init() {
-    // 行內樣式設置的寬高給予canvas的畫布尺寸
-    this.canvas.width = this.canvas.clientWidth;
-    this.canvas.height = this.canvas.clientHeight;
     this.setlineWidth = 1;
     this.c.beginPath();
     this.c.fillRect(0, 0, this.canvas.width, this.canvas.height);
