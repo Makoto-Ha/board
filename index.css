@@ -7,7 +7,7 @@
 html {
   font-size: 20px;
   height: 100%;
-  cursor: url('./img/cartoon.ico'), auto;
+  cursor: url('./src/img/cartoon.ico'), auto;
 }
 
 body {
@@ -21,7 +21,7 @@ body {
 }
 
 canvas {
-  cursor: url('./img/whitepen.ico'), auto;
+  cursor: url('./src/img/whitepen.ico'), auto;
   display: block;
   margin: 10px auto;
   border: 1px solid #ccc;
@@ -52,7 +52,7 @@ canvas {
   width: 70px;
   height: 70px;
   border: 1px solid transparent;
-  cursor: url('./img/whitepen.ico'), auto;
+  cursor: url('./src/img/whitepen.ico'), auto;
 }
 
 .container>.lineColor:nth-child(4) {

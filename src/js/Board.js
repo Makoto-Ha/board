@@ -1,61 +1,4 @@
-class Detection {
-  domAction(dom, callback = () => { }) {
-    return Boolean(document.querySelector(dom)) || callback();
-  }
-}
-
-class Canvas extends Detection {
-  canvas = document.querySelector('canvas');
-  c = this.canvas.getContext('2d');
-  offset = this.offsetXY(); 
-  constructor() {
-    super();
-    // 行內樣式設置的寬高給予canvas的畫布尺寸
-    this.canvas.width = this.canvas.clientWidth;
-    this.canvas.height = this.canvas.clientHeight;
-  }
-
-  offsetXY() {
-    let offset = {
-      X: [],
-      Y: [],
-      logX: [],
-      logY: []
-    }
-    return (x, y) => {
-      if (typeof x === 'undefined') return offset;
-      offset.X.push(x);
-      offset.Y.push(y);
-      return offset;
-    }
-  }
-
-  reset({ X, Y }) { 
-    // 還沒開始畫就直接返回
-    if (X.length === 0) return '還沒開始畫線';
-    // 清除六次
-    let tempColor = this.c.strokeStyle;
-    let resetX = X[X.length-1];
-    let resetY = Y[Y.length-1];
-
-    this.c.strokeStyle = this.c.fillStyle;
-    this.c.lineWidth += 2; 
-    console.log(resetX);
-    
-    for (let i = 1; i <= resetX.length; i++) {
-  
-      this.c.lineTo(resetX[resetX.length - i], resetY[resetY.length - i]);
-      this.c.stroke();
-    }
-    // 抬起筆後，原本畫的顏色才不會被修改
-    this.c.beginPath();
-    this.c.lineWidth -= 2;
-    // 還原原本筆的顏色
-    this.c.strokeStyle = tempColor;  
-    X.pop();
-    Y.pop();
-  }
-}
+import Canvas from './Canvas.js';
 
 class Board extends Canvas {
   // c畫布 、 cutEL截圖 、 eraser橡皮 、 clearEL清除 、 lineColor色筆 、 thicknessEL色筆粗細
@@ -83,16 +26,20 @@ class Board extends Canvas {
   }
 
   // 按下滑鼠後綁定mousemove滑鼠移動事件
-  bindDrawLine() {
-    this.offset().logX = [];
-    this.offset().logY = [];
+  bindDrawLine(event) {
+    let log = this.getLog();
+    log.X = [];
+    log.Y = [];
+    log.X.push(event.offsetX);
+    log.Y.push(event.offsetY);
     this.canvas.addEventListener('mousemove', this.drawLine);
   }
 
   // 畫線
-  drawLine(event) { 
-    this.offset().logX.push(event.offsetX);
-    this.offset().logY.push(event.offsetY);
+  drawLine(event) {
+    let log = this.getLog();
+    log.X.push(event.offsetX);
+    log.Y.push(event.offsetY);
 
     this.c.lineTo(event.offsetX, event.offsetY);
     this.c.stroke();
@@ -101,9 +48,8 @@ class Board extends Canvas {
   // 停止畫線
   drawStop() {
     this.c.beginPath();
-    let offset = this.offset();
-    offset.X.push(offset.logX);
-    offset.Y.push(offset.logY);
+    let log = this.getLog();
+    this.offsetInput(log.X, log.Y);
     this.canvas.removeEventListener('mousemove', this.drawLine);
   }
 
@@ -114,12 +60,12 @@ class Board extends Canvas {
   }
 
   reset(keyWord) {
-    let log = '', target = keyWord;
+    let log = ''
     return ({ key }) => {
       log += key;
-      if (log.includes(target)) {
+      if (log.includes(keyWord)) {
         log = ''
-        super.reset(this.offset());
+        super.reset(this.getOffset());
       }
     }
   }
@@ -173,18 +119,15 @@ class Board extends Canvas {
   // 初始化
   init() {
     this.setlineWidth = 1;
-    this.c.beginPath();
-    this.c.fillRect(0, 0, this.canvas.width, this.canvas.height);
-    this.c.strokeStyle = '#fff';
     this.clearEL.innerText = '清除';
     this.eraser.el.innerText = '橡皮';
     this.cutEL.innerText = '截圖';
     this.lineColor.forEach((el, i) => {
       let values = [
-        { color: '#8E44AD', cursor: './img/purplepen.ico' },
-        { color: '#F1C40F', cursor: './img/yellowpen.ico' },
-        { color: '#16A085', cursor: './img/greenpen.ico' },
-        { color: '#E74C3C', cursor: './img/redpen.ico' }
+        { color: '#8E44AD', cursor: './src/img/purplepen.ico' },
+        { color: '#F1C40F', cursor: './src/img/yellowpen.ico' },
+        { color: '#16A085', cursor: './src/img/greenpen.ico' },
+        { color: '#E74C3C', cursor: './src/img/redpen.ico' }
       ];
       el.style.background = values[i].color;
       el.setAttribute('cursorICO', values[i].cursor);
@@ -192,3 +135,5 @@ class Board extends Canvas {
     });
   }
 }
+
+export default Board;
