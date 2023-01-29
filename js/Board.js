@@ -17,28 +17,29 @@ class Board extends Canvas {
   bindEvent() {
     Board.prototype.drawLine = this.drawLine.bind(this);
     this.canvas.addEventListener('mousedown', this.bindDrawLine.bind(this));
-    this.canvas.addEventListener('mouseup', this.logPush.bind(this));
     document.addEventListener('mouseup', this.drawStop.bind(this));
     this.clearEL.addEventListener('click', this.clear.bind(this));
     this.eraser.el.addEventListener('click', this.wipe.bind(this));
     this.cutEL.addEventListener('click', this.cut.bind(this));
     this.thicknessEL.addEventListener('change', this.thickness.bind(this));
-    document.addEventListener('keydown', this.reset.bind(this, 'r'));
+    document.addEventListener('keydown', this.reset.bind(this, 'r')());
   }
 
   // 按下滑鼠後綁定mousemove滑鼠移動事件
   bindDrawLine(event) {
-    let log = this.getLog();
-    log.X = [];
-    log.Y = [];
-    this.log(event.offsetX, event.offsetY);
+    this.offset().logX = [];
+    this.offset().logY = [];
+    this.offset().logX.push(event.offsetX);
+    this.offset().logY.push(event.offsetY);
     this.canvas.addEventListener('mousemove', this.drawLine);
   }
 
   // 畫線
-  drawLine(event) {
-    let log = this.getLog();
-    this.log(event.offsetX, event.offsetY);
+  drawLine(event) { 
+    let offset = this.offset();
+    offset.logX.push(event.offsetX);
+    offset.logY.push(event.offsetY);
+
     this.c.lineTo(event.offsetX, event.offsetY);
     this.c.stroke();
   }
@@ -46,6 +47,9 @@ class Board extends Canvas {
   // 停止畫線
   drawStop() {
     this.c.beginPath();
+    let offset = this.offset();
+    offset.X.push(offset.logX);
+    offset.Y.push(offset.logY);
     this.canvas.removeEventListener('mousemove', this.drawLine);
   }
 
@@ -55,14 +59,16 @@ class Board extends Canvas {
     this.c.fillRect(0, 0, this.canvas.width, this.canvas.height);
   }
 
-  reset(keyWord, { key }) {
-    this.log = '';
-    this.log += key;
-    if (this.log.includes(keyWord)) {
-      this.log = ''
-      super.reset(this.getOffset());
+  reset(keyWord) {
+    let log = '', target = keyWord;
+    return ({ key }) => {
+      log += key;
+      if (log.includes(target)) {
+        console.log('in');
+        log = ''
+        super.reset(this.offset());
+      }
     }
-    delete this.log;
   }
 
   // 設置黑板顏色
@@ -73,22 +79,20 @@ class Board extends Canvas {
   }
 
   // 畫筆顏色
-  setLineColor({ target }) {
+  setLineColor(event) {
     // 選取目標顏色為當前畫筆顏色，然後重置flag、innerText、lineWidth
-    let cursorIMG = target.getAttribute('cursorICO');
-    let { lineColor, canvas, c, eraser, thicknessEL, setLineWidth } = this;
-    lineColor.forEach(el => {
+    this.lineColor.forEach(el => {
       el.style.border = '1px solid transparent';
-      el.style.cursor = `url('${cursorIMG}'), auto`;
+      el.style.cursor = `url('${event.target.getAttribute('cursorICO')}'), auto`;
     });
-    target.style.border = '1px solid #000';
-    canvas.style.cursor = `url('${cursorIMG}'), auto`;
-    eraser.el.innerText = '橡皮';
-    eraser.flag = true;
-    c.lineWidth = setLineWidth;
-    c.strokeStyle = target.style.background;
-    thicknessEL.style.color = target.style.background;
-    thicknessEL.querySelectorAll('option').forEach(el => el.style.color = target.style.background);
+    event.target.style.border = '1px solid #000';
+    this.canvas.style.cursor = `url('${event.target.getAttribute('cursorICO')}'), auto`;
+    this.c.lineWidth = this.setlineWidth;
+    this.eraser.el.innerText = '橡皮';
+    this.eraser.flag = true;
+    this.c.strokeStyle = event.target.style.background;
+    this.thicknessEL.style.color = event.target.style.background;
+    this.thicknessEL.querySelectorAll('option').forEach(el => el.style.color = event.target.style.background);
   }
 
   // 擦拭
@@ -109,22 +113,25 @@ class Board extends Canvas {
 
   // 粗細
   thickness(event) {
-    this.setLineWidth = parseInt(event.target.value);
+    this.setlineWidth = parseInt(event.target.value);
     this.c.lineWidth = parseInt(event.target.value);
   }
 
   // 初始化
   init() {
-    this.setLineWidth = 1;
+    this.setlineWidth = 1;
+    this.c.beginPath();
+    this.c.fillRect(0, 0, this.canvas.width, this.canvas.height);
+    this.c.strokeStyle = '#fff';
     this.clearEL.innerText = '清除';
     this.eraser.el.innerText = '橡皮';
     this.cutEL.innerText = '截圖';
     this.lineColor.forEach((el, i) => {
       let values = [
-        { color: '#8E44AD', cursor: './src/img/purplepen.ico' },
-        { color: '#F1C40F', cursor: './src/img/yellowpen.ico' },
-        { color: '#16A085', cursor: './src/img/greenpen.ico' },
-        { color: '#E74C3C', cursor: './src/img/redpen.ico' }
+        { color: '#8E44AD', cursor: './img/purplepen.ico' },
+        { color: '#F1C40F', cursor: './img/yellowpen.ico' },
+        { color: '#16A085', cursor: './img/greenpen.ico' },
+        { color: '#E74C3C', cursor: './img/redpen.ico' }
       ];
       el.style.background = values[i].color;
       el.setAttribute('cursorICO', values[i].cursor);

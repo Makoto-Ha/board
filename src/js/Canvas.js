@@ -15,10 +15,12 @@ class Canvas extends Detection {
   }
 
   createOffset() {
+    // 紀錄所有筆的X和Y
     let offset = {
       X: [],
       Y: []
     }
+    // 紀錄單筆的X和Y
     let log = {
       X: [],
       Y: []
@@ -31,6 +33,17 @@ class Canvas extends Detection {
       offset.X.push(x);
       offset.Y.push(y);
     }
+  }
+
+  log(x, y) {
+    let log = this.getLog();
+    log.X.push(x);
+    log.Y.push(y);
+  }
+
+  logPush() {
+    let log = this.getLog();    
+    this.offsetInput(log.X, log.Y);
   }
 
   reset({ X, Y }) {
